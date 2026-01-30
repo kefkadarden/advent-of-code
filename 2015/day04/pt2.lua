@@ -19,7 +19,7 @@ while true do
   message = content .. i
   print(message)
   hash_string = md5.sumhexa(message)
-  if string.sub(hash_string, 1, 5) == "00000" then
+  if string.sub(hash_string, 1, 6) == "000000" then
     break;
   end
   i = i + 1
