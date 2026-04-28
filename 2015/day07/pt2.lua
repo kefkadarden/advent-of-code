@@ -166,6 +166,10 @@ for line in io.lines(filename) do
     end
   end
 
+  if (endWire == "b") then
+    w1 = 3176
+    wires[endWire] = 3176
+  end
   --print("end wire: \"" .. tostring(endWire) .. "\"")
   --print("w1: " .. tostring(w1) .. " - " .. tostring(v1))
   --print("w2: " .. tostring(w2) .. " - " .. tostring(v2))
