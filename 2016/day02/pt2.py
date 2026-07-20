@@ -1,5 +1,6 @@
 import argparse
 from enum import Enum
+from re import X
 import numpy as np
 
 
@@ -13,11 +14,20 @@ class Direction(Enum):
 STARTX = 1
 STARTY = 1
 
-cur_Loc = [1, 1]
+cur_Loc = [0, 2]
 cur_Num = 5
 numbers = []  # np.array([])
 
-GRID = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+GRID = np.array(
+    [
+        ["0", "0", "1", "0", "0"],
+        ["0", "2", "3", "4", "0"],
+        ["5", "6", "7", "8", "9"],
+        ["0", "A", "B", "C", "0"],
+        ["0", "0", "D", "0", "0"],
+    ]
+)
+# GRID = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 
 
 def read_file(filename):
@@ -52,20 +62,48 @@ def lookup_loc(num):
     return np.argwhere(GRID == num)
 
 
+def update_loc(loc, dir):
+    x = loc[0]
+    y = loc[1]
+    match dir:
+        case "U":
+            if y > 0:
+                y = y - 1
+        case "R":
+            if x < 4:
+                x = x + 1
+        case "D":
+            if y < 4:
+                y = y + 1
+        case "L":
+            if x > 0:
+                x = x - 1
+        case _:
+            print("ERROR: INVALID DIRECTION")
+    loc[0] = x
+    loc[1] = y
+    return loc
+
+
 def process_cmd(cmd):
     global cur_Num
+    tmp_Loc = update_loc(cur_Loc.copy(), cmd)
+    if tmp_Loc[0] >= 0 and tmp_Loc[0] <= 4 and tmp_Loc[1] >= 0 and tmp_Loc[1] <= 4:
+        tmp_num = lookup_num(tmp_Loc)
+    else:
+        tmp_num = "-1"
     match cmd:
         case "U":
-            if cur_Loc[1] > 0:
+            if cur_Loc[1] > 0 and tmp_num != "0":
                 cur_Loc[1] = cur_Loc[1] - 1  # Move up on Y axis
         case "R":
-            if cur_Loc[0] < 2:
-                cur_Loc[0] = cur_Loc[0] + 1  # Move right on X axis
+            if cur_Loc[0] < 4 and tmp_num != "0":
+                cur_Loc[0] = cur_Loc[0] + 1  # mainove right on X axis
         case "D":
-            if cur_Loc[1] < 2:
+            if cur_Loc[1] < 4 and tmp_num != "0":
                 cur_Loc[1] = cur_Loc[1] + 1  # Move down on Y axis
         case "L":
-            if cur_Loc[0] > 0:
+            if cur_Loc[0] > 0 and tmp_num != "0":
                 cur_Loc[0] = cur_Loc[0] - 1  # Move left on X axis
         case _:
             print("ERROR: INVALID DIRECTION")
