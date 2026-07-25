@@ -1,7 +1,8 @@
 import argparse
 import re
 
-sum = 0
+# USAGE: prints out all the rotated room names with sectorid. Used "grep" to find the
+# room with "north".
 
 
 def read_file(filename):
@@ -9,55 +10,46 @@ def read_file(filename):
     with open(filename, "r") as file:
         for row in file:
             process_row(row)
-            print("-----")
-    print(*rooms_to_check)
+    for room in rooms_to_check:
+        process_room(room)
 
 
 regex = r"([a-z,\-]*)-([0-9]*)\[([a-z]{5})\]"
 rooms_to_check = []
 
 
+def process_room(room):
+    arr = room.split("_")
+    letters = arr[0]
+    sectorid = int(arr[1])
+    roomword = ""
+    for letter in list(letters):
+        roomword += rotate_letter(letter, sectorid)
+    print(str(sectorid) + ": " + roomword)
+
+
 def process_row(row):
     global sum
     global rooms_to_check
-    letterDict = {}
     match = re.search(regex, row)
     if match:
         letters = match.group(1)
         sectorid = match.group(2)
-        checksum = match.group(3)
-        # print(letters, sectorid, checksum)
-        # Split letters into all a-z and count into dict.
-        # sort dict by top letters get top 5 then sort alphabetically
-        # Does top 5 match checksum? Then add sectorid to sum.
-        for letter in list(letters):
-            if letter.isalpha():
-                if not letterDict.get(letter):
-                    letterDict[letter] = 0
-
-                letterDict[letter] += 1
-        sorted_data = {
-            k: v
-            for k, v in sorted(letterDict.items(), key=lambda item: (-item[1], item[0]))
-        }
-        top_5 = dict(list(sorted_data.items())[0:5])
-        keys = "".join(top_5.keys())
-        if keys == checksum:
-            sum += int(sectorid)
-
         # Save room to be processed later
-        rooms_to_check.append(letters + "-" + str(sectorid))
-    print(row)
+        rooms_to_check.append(letters + "_" + str(sectorid))
 
 
-def rotote_letter(letter, sectorid):
+def rotate_letter(letter, sectorid):
     i = 1
     while i <= sectorid:
-        if str(ascii(letter)) == "z":
+        if letter == "z":
             letter = "a"
+        elif letter == "-":
+            letter = " "
+            break
         else:
-            letter = str(ascii(letter) + 1)
-    print(letter)
+            letter = chr(ord(letter) + 1)
+        i += 1
     return letter
 
 
@@ -66,7 +58,6 @@ def main():
     parser.add_argument("filename", type=str, help="The name of the file to process")
     args = parser.parse_args()
     read_file(args.filename)
-    print("Sum of Sector IDs: " + str(sum))
 
 
 if __name__ == "__main__":
